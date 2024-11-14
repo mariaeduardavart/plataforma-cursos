@@ -16,6 +16,8 @@ import com.accenture.plataforma_cursos.Exceptions.EnrollmentException;
 import com.accenture.plataforma_cursos.Repository.StudentRepository;
 import com.accenture.plataforma_cursos.Util.EnrollmentPopulator;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class EnrollmentService {
 
@@ -31,8 +33,8 @@ public class EnrollmentService {
     @Autowired
     private EnrollmentPopulator enrollmentPopulator;
 
+    @Transactional
     public EnrollmentDTO enrollStudentInCourse(Long studentId, Long courseId) {
-
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new EnrollmentException("Student not found with ID: " + studentId));
 
@@ -45,14 +47,23 @@ public class EnrollmentService {
         enrollment.setEnrollmentDate(java.time.LocalDateTime.now());
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+
         return enrollmentPopulator.toEnrollmentDTO(savedEnrollment);
     }
 
     public List<Course> getCoursesByStudentId(Long studentId) {
-        return enrollmentRepository.findCoursesByStudentId(studentId);
+        try {
+            return enrollmentRepository.findCoursesByStudentId(studentId);
+        } catch (Exception ex) {
+            throw new RuntimeException("An unexpected error occurred while fetching courses for student: " + ex.getMessage(), ex);
+        }
     }
 
     public List<Student> getStudentsByCourseId(Long courseId) {
-        return enrollmentRepository.findStudentsByCourseId(courseId);
+        try {
+            return enrollmentRepository.findStudentsByCourseId(courseId);
+        } catch (Exception ex) {
+            throw new RuntimeException("An unexpected error occurred while fetching students for course: " + ex.getMessage(), ex);
+        }
     }
 }

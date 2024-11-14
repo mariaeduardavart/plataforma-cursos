@@ -9,6 +9,8 @@ import com.accenture.plataforma_cursos.Exceptions.CourseNotFoundException;
 import com.accenture.plataforma_cursos.Repository.CourseRepository;
 import com.accenture.plataforma_cursos.Util.EnrollmentPopulator;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CourseService {
 
@@ -18,6 +20,7 @@ public class CourseService {
     @Autowired
     private EnrollmentPopulator enrollmentPopulator;
 
+    @Transactional
     public CourseDTO registerCourse(Course course) {
 
         if (course.getName() == null || course.getDescription() == null) {
